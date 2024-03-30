@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'wikipedia_ports.dart';
 
-class WikipediaPortsPage extends GetView<WikipediaPortsController> {
+class WikipediaPortsPage extends StatelessWidget {
   static const String route = '/wikipedia_ports';
 
   const WikipediaPortsPage({super.key});
@@ -23,72 +23,10 @@ class WikipediaPortsPage extends GetView<WikipediaPortsController> {
             child: ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    const Text('Lista de portas reservadas TCP/IP'),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.sync, color: Colors.indigo),
-                        label: const Text('Receber dados', style: TextStyle(color: Colors.indigo)),
-                        onPressed: () => controller.getPorts(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Divider(),
-                ),
+                const _PortsHeaderWidget(),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Divider()),
                 const SizedBox(height: 16),
-                Obx(() {
-                  return controller.isLoading
-                      ? const Center(
-                          child: Padding(
-                          padding: EdgeInsets.only(top: 48),
-                          child: CircularProgressIndicator(color: Colors.indigo),
-                        ))
-                      : Padding(
-                          padding: const EdgeInsets.only(left: 20, right: 20, bottom: 24),
-                          child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: constraints.maxWidth * 0.25,
-                            ),
-                            itemCount: controller.ports.length,
-                            itemBuilder: (_, i) {
-                              final port = controller.ports[i];
-                              return GestureDetector(
-                                child: Center(
-                                  child: Container(
-                                    width: 64,
-                                    height: 64,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      border: Border.all(color: Colors.black12),
-                                      borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        port.number,
-                                        style: Get.textTheme.titleLarge,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                onTap: () => Get.dialog(PortDetailsDialog(
-                                  portItem: PortItem.fromPort(port),
-                                )),
-                              );
-                            },
-                          ),
-                        );
-                }),
+                _PortsSectionWidget(currentMaxScreenWidth: constraints.maxWidth),
               ],
             ),
           );
@@ -98,19 +36,106 @@ class WikipediaPortsPage extends GetView<WikipediaPortsController> {
   }
 }
 
-// Column(
-//                           children: controller.ports.map((port) {
-//                             return Container(
-//                               decoration: BoxDecoration(border: Border.all(color: Colors.black54)),
-//                               child: ListTile(
-//                                 title: Text(port.number),
-//                                 subtitle: Text(port.description),
-//                                 trailing: Text(port.status),
-//                                 tileColor: Colors.grey[200],
-//                                 onTap: () => Get.dialog(PortDetailsDialog(
-//                                   portItem: PortItem.fromPort(port),
-//                                 )),
-//                               ),
-//                             );
-//                           }).toList(),
-//                         );
+class _PortsHeaderWidget extends GetView<WikipediaPortsController> {
+  const _PortsHeaderWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: 40),
+        const Text('Lista de portas reservadas TCP/IP'),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.sync, color: Colors.indigo),
+            label: const Text('Receber dados', style: TextStyle(color: Colors.indigo)),
+            onPressed: () => controller.getPorts(),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+class _PortsSectionWidget extends GetView<WikipediaPortsController> {
+  final double currentMaxScreenWidth;
+
+  const _PortsSectionWidget({
+    Key? key,
+    required this.currentMaxScreenWidth,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return controller.isLoading
+          ? const Center(
+              child: Padding(
+              padding: EdgeInsets.only(top: 48),
+              child: CircularProgressIndicator(color: Colors.indigo),
+            ))
+          : Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 24),
+              child: _PortsGridWidget(currentMaxScreenWidth: currentMaxScreenWidth),
+            );
+    });
+  }
+}
+
+class _PortsGridWidget extends GetView<WikipediaPortsController> {
+  final double currentMaxScreenWidth;
+
+  const _PortsGridWidget({
+    Key? key,
+    required this.currentMaxScreenWidth,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: currentMaxScreenWidth * 0.25,
+      ),
+      itemCount: controller.ports.length,
+      itemBuilder: (_, i) {
+        final port = controller.ports[i];
+        return GestureDetector(
+          child: _PortItemWidget(portNumber: port.number),
+          onTap: () {
+            Get.dialog(PortDetailsDialog(portItem: PortItem.fromPort(port)));
+          },
+        );
+      },
+    );
+  }
+}
+
+class _PortItemWidget extends StatelessWidget {
+  final String portNumber;
+
+  const _PortItemWidget({Key? key, required this.portNumber}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 64,
+        height: 64,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          border: Border.all(color: Colors.black12),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ),
+        child: Center(
+          child: Text(portNumber, style: Get.textTheme.titleLarge),
+        ),
+      ),
+    );
+  }
+}
