@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scraping_app/di/global_dependencies.dart';
+import 'package:scraping_app/theme.dart';
 
 import 'routes/routes.dart';
 import 'wikipedia_ports/wikipedia_ports.dart';
@@ -16,7 +17,7 @@ class ScrapingApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Scraping App',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: getTheme(),
       initialRoute: WikipediaPortsPage.route,
       initialBinding: GlobalDependencies(),
       getPages: getAppPages(),

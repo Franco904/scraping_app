@@ -19,5 +19,5 @@ class Port {
 }
 
 String normalizeChars(String rawString) {
-  return rawString.replaceAll('Ã§', 'ç');
+  return rawString.replaceAll('Ã§', 'ç').replaceAll('Ã¡', 'á').replaceAll('Ã£', 'ã').replaceAll('Ãª', 'ê');
 }
