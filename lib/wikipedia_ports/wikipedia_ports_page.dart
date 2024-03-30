@@ -18,18 +18,15 @@ class WikipediaPortsPage extends StatelessWidget {
       ),
       body: LayoutBuilder(
         builder: (_, constraints) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                const _PortsHeaderWidget(),
-                const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Divider()),
-                const SizedBox(height: 16),
-                _PortsSectionWidget(currentMaxScreenWidth: constraints.maxWidth),
-              ],
-            ),
-          );
+          return ListView(
+            physics: const BouncingScrollPhysics(),
+            children: [
+              const _PortsHeaderWidget(),
+              const Divider().paddingSymmetric(horizontal: 16),
+              const SizedBox(height: 16),
+              _PortsSectionWidget(currentMaxScreenWidth: constraints.maxWidth),
+            ],
+          ).paddingSymmetric(horizontal: 16);
         },
       ),
     );
@@ -47,14 +44,11 @@ class _PortsHeaderWidget extends GetView<WikipediaPortsController> {
         const SizedBox(height: 40),
         const Text('Lista de portas reservadas TCP/IP'),
         const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.sync, color: Colors.indigo),
-            label: const Text('Receber dados', style: TextStyle(color: Colors.indigo)),
-            onPressed: () => controller.getPorts(),
-          ),
-        ),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.sync, color: Colors.indigo),
+          label: const Text('Receber dados', style: TextStyle(color: Colors.indigo)),
+          onPressed: () => controller.getPorts(),
+        ).paddingSymmetric(horizontal: 20),
         const SizedBox(height: 16),
       ],
     );
@@ -73,15 +67,12 @@ class _PortsSectionWidget extends GetView<WikipediaPortsController> {
   Widget build(BuildContext context) {
     return Obx(() {
       return controller.isLoading
-          ? const Center(
-              child: Padding(
-              padding: EdgeInsets.only(top: 48),
-              child: CircularProgressIndicator(color: Colors.indigo),
-            ))
-          : Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 24),
-              child: _PortsGridWidget(currentMaxScreenWidth: currentMaxScreenWidth),
-            );
+          ? Center(
+              child: const CircularProgressIndicator(color: Colors.indigo).paddingOnly(top: 48),
+            )
+          : _PortsGridWidget(
+              currentMaxScreenWidth: currentMaxScreenWidth,
+            ).paddingOnly(left: 20, right: 20, bottom: 24);
     });
   }
 }
